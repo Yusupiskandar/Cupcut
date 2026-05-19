@@ -1,0 +1,124 @@
+:root {
+  --bg: #121212;
+  --surface: #1e1e1e;
+  --surface-2: #242424;
+  --text: #f7f7f7;
+  --muted: #c4c4c4;
+  --accent: #4e9af1;
+  --success: #35a26c;
+  --error: #e03f4a;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Inter, system-ui, sans-serif;
+  background: radial-gradient(circle at top, #232323 0%, #101010 100%);
+  color: var(--text);
+}
+
+.app-shell {
+  max-width: 940px;
+  margin: 24px auto;
+  padding: 20px;
+}
+
+h1 {
+  margin-bottom: 0.25rem;
+}
+
+p {
+  margin-top: 0;
+  color: var(--muted);
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid #2f2f2f;
+  border-radius: 16px;
+  padding: 20px;
+  margin-top: 20px;
+}
+
+.form-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.form-row label {
+  min-width: 160px;
+  font-weight: 600;
+}
+
+.form-row span {
+  flex: 1;
+  color: var(--muted);
+  word-break: break-word;
+}
+
+button,
+input,
+select {
+  border: 1px solid #333;
+  border-radius: 10px;
+  padding: 12px 16px;
+  background: #161616;
+  color: var(--text);
+  font-size: 0.95rem;
+}
+
+button.primary {
+  background: var(--accent);
+  color: white;
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+input[type='number'] {
+  width: 120px;
+}
+
+.status-panel {
+  margin-top: 24px;
+  display: grid;
+  gap: 16px;
+}
+
+.status-box,
+.progress-box,
+.results-box {
+  background: var(--surface-2);
+  border: 1px solid #2f2f2f;
+  border-radius: 14px;
+  padding: 16px;
+}
+
+.success {
+  border-color: #2c7d56;
+}
+
+.error {
+  border-color: #a63031;
+}
+
+.status-box.success {
+  color: #b7f1d4;
+}
+
+.status-box.error {
+  color: #f3b5b5;
+}
+
+.results-box div {
+  margin-bottom: 10px;
+}

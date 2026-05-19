@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CupCut - Video Splitter</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <h1>CupCut</h1>
+    <p>Aplikasi pemotong video sederhana berbasis Electron dan FFmpeg.</p>
+
+    <div class="card">
+      <div class="form-row">
+        <button id="select-video">Pilih Video</button>
+        <span id="video-path">Belum memilih file video</span>
+      </div>
+
+      <div class="form-row">
+        <label for="segment-duration">Durasi potong (menit)</label>
+        <input id="segment-duration" type="number" min="1" value="1">
+      </div>
+
+      <div class="form-row">
+        <label for="output-format">Format output</label>
+        <select id="output-format" disabled>
+          <option>MP4</option>
+        </select>
+      </div>
+
+      <div class="form-row">
+        <button id="select-output-folder">Pilih Folder Output</button>
+        <span id="output-path">Belum memilih folder output</span>
+      </div>
+
+      <div class="form-row">
+        <button id="start-split" class="primary">Mulai Proses</button>
+      </div>
+    </div>
+
+    <div class="status-panel">
+      <div id="status" class="status-box">Status: Menunggu input pengguna.</div>
+      <div id="progress" class="progress-box"></div>
+      <div id="results" class="results-box"></div>
+    </div>
+  </div>
+
+  <script src="renderer.js"></script>
+</body>
+</html>
