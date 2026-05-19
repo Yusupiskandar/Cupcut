@@ -11,6 +11,7 @@
   <div class="app-shell">
     <h1>CupCut</h1>
     <p>Aplikasi pemotong video sederhana berbasis Electron dan FFmpeg.</p>
+    <p class="note">Dukungan input video: MP4, MOV, MKV, WEBM, AVI, FLV, TS</p>
 
     <div class="card">
       <div class="form-row">
@@ -27,6 +28,14 @@
         <label for="output-format">Format output</label>
         <select id="output-format" disabled>
           <option>MP4</option>
+        </select>
+      </div>
+
+      <div class="form-row">
+        <label for="output-orientation">Posisi output</label>
+        <select id="output-orientation">
+          <option value="portrait">Portrait</option>
+          <option value="landscape" selected>Landscape</option>
         </select>
       </div>
 

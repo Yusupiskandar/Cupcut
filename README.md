@@ -3,8 +3,9 @@
 Aplikasi desktop kecil untuk memotong video panjang menjadi beberapa file MP4 dengan durasi tetap.
 
 ## Fitur
-- Pilih file video input
+- Pilih file video input (termasuk WEBM)
 - Atur durasi potongan dalam menit
+- Pilih orientasi hasil: portrait atau landscape
 - Pilih folder output
 - Proses video menggunakan FFmpeg
 - Menampilkan progres dan daftar file hasil

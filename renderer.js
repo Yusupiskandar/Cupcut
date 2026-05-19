@@ -4,6 +4,7 @@ const startSplitButton = document.getElementById('start-split');
 const videoPathText = document.getElementById('video-path');
 const outputPathText = document.getElementById('output-path');
 const durationInput = document.getElementById('segment-duration');
+const orientationSelect = document.getElementById('output-orientation');
 const statusBox = document.getElementById('status');
 const progressBox = document.getElementById('progress');
 const resultsBox = document.getElementById('results');
@@ -73,6 +74,12 @@ startSplitButton.addEventListener('click', async () => {
     return;
   }
 
+  const orientation = orientationSelect.value;
+  if (!['portrait', 'landscape'].includes(orientation)) {
+    setStatus('Pilih orientasi output yang valid.', 'error');
+    return;
+  }
+
   statusBox.scrollIntoView({ behavior: 'smooth' });
   progressBox.textContent = '';
   resultsBox.innerHTML = '';
@@ -83,10 +90,11 @@ startSplitButton.addEventListener('click', async () => {
     const result = await window.api.startSplit({
       videoPath: selectedVideoPath,
       segmentMinutes,
-      outputFolder: selectedOutputFolder
+      outputFolder: selectedOutputFolder,
+      orientation
     });
 
-    setStatus(`Selesai. ${result.outputFiles.length} file berhasil dibuat.`, 'success');
+    setStatus(`Selesai. ${result.outputFiles.length} file ${orientation} berhasil dibuat.`, 'success');
     appendResult(`Total file: ${result.outputFiles.length}`);
     result.outputFiles.forEach((filePath) => appendResult(filePath));
   } catch (error) {
