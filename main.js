@@ -1,6 +1,6 @@
 const { app, BrowserWindow, dialog, ipcMain } = require('electron');
 const path = require('path');
-const { ensureFfmpegAvailable, getVideoDuration, splitVideo } = require('./services/videoService');
+const { ensureFfmpegAvailable, getVideoDuration, splitVideo, stopSplit } = require('./services/videoService');
 
 function createWindow() {
   const win = new BrowserWindow({
@@ -76,13 +76,19 @@ ipcMain.handle('read-video-metadata', async (_, videoPath) => {
   return durationSeconds;
 });
 
-ipcMain.handle('start-split', async (event, { videoPath, segmentMinutes, outputFolder }) => {
+ipcMain.handle('start-split', async (event, { videoPath, segmentMinutes, outputFolder, orientation }) => {
   return splitVideo({
     videoPath,
     segmentMinutes,
     outputFolder,
+    orientation,
     progressCallback: (progress) => {
       event.sender.send('split-progress', progress);
     }
   });
+});
+
+ipcMain.handle('stop-split', async () => {
+  const stopped = stopSplit();
+  return stopped;
 });

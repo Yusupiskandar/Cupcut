@@ -4,6 +4,9 @@ const path = require('path');
 const ffmpegPath = require('ffmpeg-static');
 const ffprobePath = require('ffprobe-static').path;
 
+let activeFfmpegProcess = null;
+let stopRequested = false;
+
 async function ensureFfmpegAvailable() {
   if (!ffmpegPath || !fs.existsSync(ffmpegPath)) {
     throw new Error('Binary FFmpeg tidak tersedia. Pastikan dependensi ffmpeg-static terpasang.');
@@ -81,15 +84,27 @@ function getVideoDuration(videoPath) {
 
 function runFfmpeg(args) {
   return new Promise((resolve, reject) => {
-    const process = spawn(ffmpegPath, args, { stdio: ['ignore', 'pipe', 'pipe'] });
+    stopRequested = false;
+    const process = spawn(ffmpegPath, args, { stdio: ['pipe', 'pipe', 'pipe'] });
+    activeFfmpegProcess = process;
     let stderr = '';
 
     process.stderr.on('data', (chunk) => {
       stderr += chunk.toString();
     });
 
-    process.on('error', (error) => reject(error));
+    process.on('error', (error) => {
+      activeFfmpegProcess = null;
+      reject(error);
+    });
+
     process.on('close', (code) => {
+      activeFfmpegProcess = null;
+      if (stopRequested) {
+        reject(new Error('Proses dihentikan oleh pengguna.'));
+        return;
+      }
+
       if (code === 0) {
         resolve();
       } else {
@@ -97,6 +112,35 @@ function runFfmpeg(args) {
       }
     });
   });
+}
+
+function stopSplit() {
+  if (!activeFfmpegProcess || activeFfmpegProcess.killed) {
+    return false;
+  }
+
+  stopRequested = true;
+
+  try {
+    if (activeFfmpegProcess.stdin && !activeFfmpegProcess.stdin.destroyed) {
+      activeFfmpegProcess.stdin.write('q');
+      activeFfmpegProcess.stdin.end();
+    }
+  } catch (error) {
+    // ignore if stdin is unavailable
+  }
+
+  setTimeout(() => {
+    if (activeFfmpegProcess && !activeFfmpegProcess.killed) {
+      try {
+        activeFfmpegProcess.kill('SIGKILL');
+      } catch (error) {
+        // ignore kill failure
+      }
+    }
+  }, 3000);
+
+  return true;
 }
 
 async function splitVideo({ videoPath, segmentMinutes, outputFolder, orientation = 'landscape', progressCallback }) {
@@ -175,8 +219,19 @@ async function splitVideo({ videoPath, segmentMinutes, outputFolder, orientation
       outputPath
     );
 
-    await runFfmpeg(args);
-    outputFiles.push(outputPath);
+    try {
+      await runFfmpeg(args);
+      outputFiles.push(outputPath);
+    } catch (error) {
+      if (stopRequested && fs.existsSync(outputPath)) {
+        try {
+          fs.unlinkSync(outputPath);
+        } catch (cleanupError) {
+          // ignore cleanup failure
+        }
+      }
+      throw error;
+    }
   }
 
   return { outputFiles, totalSegments };
@@ -185,5 +240,6 @@ async function splitVideo({ videoPath, segmentMinutes, outputFolder, orientation
 module.exports = {
   ensureFfmpegAvailable,
   getVideoDuration,
-  splitVideo
+  splitVideo,
+  stopSplit
 };

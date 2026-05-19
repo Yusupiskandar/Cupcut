@@ -1,6 +1,7 @@
 const selectVideoButton = document.getElementById('select-video');
 const selectOutputButton = document.getElementById('select-output-folder');
 const startSplitButton = document.getElementById('start-split');
+const stopSplitButton = document.getElementById('stop-split');
 const videoPathText = document.getElementById('video-path');
 const outputPathText = document.getElementById('output-path');
 const durationInput = document.getElementById('segment-duration');
@@ -12,6 +13,7 @@ const resultsBox = document.getElementById('results');
 let selectedVideoPath = null;
 let selectedOutputFolder = null;
 let ffmpegReady = false;
+let isSplitting = false;
 
 function setStatus(message, type = 'info') {
   statusBox.textContent = `Status: ${message}`;
@@ -34,6 +36,7 @@ async function initialize() {
     ffmpegReady = false;
     startSplitButton.disabled = true;
   }
+  stopSplitButton.disabled = true;
 }
 
 selectVideoButton.addEventListener('click', async () => {
@@ -85,6 +88,8 @@ startSplitButton.addEventListener('click', async () => {
   resultsBox.innerHTML = '';
   setStatus('Memulai proses splitting video...', 'info');
   startSplitButton.disabled = true;
+  stopSplitButton.disabled = false;
+  isSplitting = true;
 
   try {
     const result = await window.api.startSplit({
@@ -98,15 +103,37 @@ startSplitButton.addEventListener('click', async () => {
     appendResult(`Total file: ${result.outputFiles.length}`);
     result.outputFiles.forEach((filePath) => appendResult(filePath));
   } catch (error) {
-    setStatus(error.message || 'Terjadi kesalahan saat memproses video.', 'error');
-    appendResult(error.message || String(error));
+    if (error.message === 'Proses dihentikan oleh pengguna.') {
+      setStatus('Proses dibatalkan oleh pengguna.', 'error');
+      appendResult('Proses split dihentikan sebelum selesai.');
+    } else {
+      setStatus(error.message || 'Terjadi kesalahan saat memproses video.', 'error');
+      appendResult(error.message || String(error));
+    }
   } finally {
+    isSplitting = false;
     startSplitButton.disabled = false;
+    stopSplitButton.disabled = true;
   }
 });
 
 window.api.onProgress((progress) => {
   progressBox.textContent = `Memproses bagian ${progress.current} dari ${progress.total} — ${progress.fileName}`;
+});
+
+stopSplitButton.addEventListener('click', async () => {
+  if (!isSplitting) {
+    return;
+  }
+
+  stopSplitButton.disabled = true;
+  setStatus('Menghentikan proses split...', 'info');
+
+  const stopped = await window.api.stopSplit();
+  if (!stopped) {
+    setStatus('Tidak ada proses split yang sedang berjalan.', 'error');
+    stopSplitButton.disabled = true;
+  }
 });
 
 initialize();

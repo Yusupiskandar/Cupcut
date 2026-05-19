@@ -8,6 +8,7 @@ Aplikasi desktop kecil untuk memotong video panjang menjadi beberapa file MP4 de
 - Pilih orientasi hasil: portrait atau landscape
 - Pilih folder output
 - Proses video menggunakan FFmpeg
+- Tombol berhenti untuk menghentikan proses split yang sedang berjalan
 - Menampilkan progres dan daftar file hasil
 
 ## Cara pakai
